@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LNG Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&family=Cormorant+Garamond:wght@300;400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="5" fill="%23344E41"/><text x="16" y="24" font-family="Georgia, serif" font-size="22" font-weight="400" fill="%23f5f2ed" text-anchor="middle" letter-spacing="-0.5">L</text></svg>'>
+
+  <style>
+    :root {
+      --bg: #f5f2ed;
+      --ink: #1a1916;
+      --muted: #2A2927;
+      --accent: #344E41;
+      --line: rgba(26, 25, 22, 0.12);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Subtle grain texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.5;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* ── Layout ── */
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      grid-template-columns: 1fr;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 1.5rem 4rem 2rem;
+      border-bottom: 1px solid var(--line);
+      opacity: 0;
+      animation: fadeUp 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+    }
+
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 4.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: 0.15rem;
+      align-items: center;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 300;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .lang-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #aaa9a6;
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      letter-spacing: inherit;
+      text-transform: inherit;
+      padding: 0.2rem 0.35rem;
+      transition: color 0.3s ease;
+    }
+
+    .lang-btn.active {
+      color: var(--ink);
+      font-weight: 400;
+    }
+
+    .lang-btn:hover {
+      color: var(--ink);
+    }
+
+    .lang-sep {
+      color: var(--line);
+      font-size: 1rem;
+    }
+
+    /* ── Main ── */
+    main {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 2rem 4rem 2rem;
+      max-width: 95vw;
+    }
+
+    .divider {
+      width: 32px;
+      height: 1px;
+      background: var(--accent);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: expandLine 1s cubic-bezier(0.22, 1, 0.36, 1) 0.6s forwards;
+      transform-origin: left;
+    }
+
+    .headline {
+      font-family: 'Cormorant', serif;
+      font-weight: 300;
+      font-size: clamp(1.4rem, 3.2vw, 2.4rem);
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.7s forwards;
+    }
+
+    .headline em {
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    .sub {
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      line-height: 1.9;
+      color: var(--accent);
+      max-width: 600px;
+      opacity: 0;
+      animation: fadeUp 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.95s forwards;
+    }
+
+    /* ── Footer ── */
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 4rem 3rem;
+      border-top: 1px solid var(--line);
+      padding-top: 2rem;
+      opacity: 0;
+      animation: fadeUp 1.2s cubic-bezier(0.22, 1, 0.36, 1) 1.2s forwards;
+    }
+
+    .footer-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .footer-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #000;
+      font-weight: 700;
+    }
+
+    .footer-value {
+      font-size: 0.85rem;
+      font-weight: 300;
+      letter-spacing: 0.06em;
+      color: #2A2927;
+    }
+
+    a.footer-right {
+      font-size: 0.85rem;
+      font-weight: 300;
+      letter-spacing: 0.06em;
+      color: #000;
+      text-decoration: underline;
+      transition: color 0.3s ease;
+      padding-bottom: 1px;
+    }
+
+    a.footer-right:hover {
+      color: #000;
+      border-bottom-color: var(--accent);
+    }
+
+    .footer-divider {
+      display: flex;
+      gap: 3rem;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes expandLine {
+      from {
+        opacity: 0;
+        transform: scaleX(0);
+      }
+      to {
+        opacity: 1;
+        transform: scaleX(1);
+      }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      header {
+        padding: 2rem 2rem 0;
+      }
+
+      main {
+        padding: 3rem 2rem 3rem;
+      }
+
+      footer {
+        padding: 2rem 2rem 2.5rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2rem;
+      }
+
+      .footer-divider {
+        gap: 2rem;
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <header>
+      <a class="logo" href="#">LNG Lab</a>
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="btn-it" onclick="setLang('it')">IT</button>
+        <span class="lang-sep">·</span>
+        <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+      </div>
+    </header>
+
+    <main>
+      <h1 class="headline" id="headline">
+        Acquistiamo società che offrono prodotti e servizi essenziali.<br>
+        <br>
+        Investiamo nell'organico per aiutarle a crescere in modo sostenibile.<br>
+        <br>
+        Il progetto intende tenere le società nel gruppo <em>per sempre.</em>
+      </h1>
+    </main>
+
+    <footer>
+      <div class="footer-divider">
+        <div class="footer-left">
+          <span class="footer-label" id="label-office">Sede</span>
+          <span class="footer-value">Milano</span>
+        </div>
+        <div class="footer-left">
+          <span class="footer-label" id="label-contact">Contatti</span>
+          <span class="footer-value">
+            <a class="footer-right" href="mailto:info@lng-lab.com">info@lng-lab.com</a>
+          </span>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    const copy = {
+      it: {
+        headline: 'Acquistiamo società che offrono prodotti e servizi essenziali.<br><br>Investiamo nell\'organico per aiutarle a crescere in modo sostenibile.<br><br>Il progetto intende tenere le società nel gruppo <em>per sempre.</em>',
+        office: 'Sede',
+        contact: 'Contatti',
+      },
+      en: {
+        headline: 'We acquire companies that offer essential products and services.<br><br>We invest in their teams to help them grow sustainably.<br><br>We intend to hold our companies <em>forever.</em>',
+        office: 'Office',
+        contact: 'Contact',
+      }
+    };
+
+    function setLang(lang) {
+      const c = copy[lang];
+      document.getElementById('headline').innerHTML = c.headline;
+      document.getElementById('sub').textContent = c.sub;
+      document.getElementById('label-office').textContent = c.office;
+      document.getElementById('label-contact').textContent = c.contact;
+      document.getElementById('btn-it').classList.toggle('active', lang === 'it');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+      document.documentElement.lang = lang;
+    }
+  </script>
+</body>
+</html>
